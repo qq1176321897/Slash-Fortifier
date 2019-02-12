@@ -1,0 +1,10 @@
+name: SlashFortifier
+main: windyroad.slashfortifier.main.Main
+version: 0.0.2
+commands:
+    slashfortifier:
+        description: Itemizer menu
+        usage: /slashfortifier <args>
+    sff:
+        description: Itemizer menu
+        usage: /sff <args>
