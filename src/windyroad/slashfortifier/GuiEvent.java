@@ -37,13 +37,17 @@ public class GuiEvent implements org.bukkit.event.Listener {
 		if (item == null)
 			return;
 		if (inv instanceof AnvilInventory) {
-			if (idList.contains(item.getTypeId())) {
+			if (SlashUtils.isSlash(item)) {
 				((Player) event.getWhoClicked()).sendMessage(Main.config.getString("Message_Tip"));
 			}
 		}
-		if (idList.contains(item.getTypeId())) {
-			SlashStrength ss = new SlashStrength(item);
-			event.setCurrentItem(ss.fixSlash());
+		if (SlashUtils.isSlash(item)) {
+			try {
+				SlashStrength ss = new SlashStrength(item);
+				event.setCurrentItem(ss.fixSlash());
+			}catch (Exception e){
+
+			}
 		}
 
 		if (event.getWhoClicked() instanceof Player == false)
@@ -71,7 +75,7 @@ public class GuiEvent implements org.bukkit.event.Listener {
 						p.sendMessage(Main.config.getString("Message_nothing"));
 						p.closeInventory();
 						return;
-					} else if (!idList.contains(itemstack.getTypeId())) {
+					} else if (!SlashUtils.isSlash(itemstack)) {
 						event.setCancelled(true);
 						p.closeInventory();
 						p.sendMessage(Main.config.getString("Message_NOT_Slash"));
@@ -153,7 +157,7 @@ public class GuiEvent implements org.bukkit.event.Listener {
 				if (slot == 10) {
 					event.setCancelled(true);
 					if (inv.getItem(13) != null) {
-						if (!idList.contains(inv.getItem(13).getTypeId())) {
+						if (!SlashUtils.isSlash(inv.getItem(13))) {
 							ItemStack check = new ItemStack(Material.BOOK);
 							ItemMeta im = check.getItemMeta();
 							im.setDisplayName(Main.config.getString("Message_notSlash"));
@@ -184,7 +188,7 @@ public class GuiEvent implements org.bukkit.event.Listener {
 						p.sendMessage(Main.config.getString("Message_nothing"));
 						p.closeInventory();
 						return;
-					} else if (!idList.contains(itemstack.getTypeId())) {
+					} else if (!SlashUtils.isSlash(itemstack)) {
 						event.setCancelled(true);
 						p.closeInventory();
 						p.sendMessage(Main.config.getString("Message_NOT_Slash"));
@@ -196,12 +200,16 @@ public class GuiEvent implements org.bukkit.event.Listener {
 						SlashStrength ss = new SlashStrength(itemstack);
 						int strength = ss.getStrength();
 						p.sendMessage("§e正在强化");
-						List<Player> ps = (List<Player>) p.getServer().getOnlinePlayers();
-						if (strength >= Main.config.getInt("StrengthLimit")) {
+						Player[] ps = p.getServer().getOnlinePlayers();
+						if (
+								Main.config.getBoolean("Broadcast")
+								&&
+								strength >= Main.config.getInt("StrengthLimit")) {
 							for (Player player : ps) {
 								if (player.isOnline()) {
-									player.sendMessage("§e"+p.getDisplayName() + "正在强化他的"
-											+ itemstack.getItemMeta().getDisplayName() + "...");
+									String n = CraftItemStack.asNMSCopy(itemstack).getName();
+									player.sendMessage("§e"+p.getDisplayName() + "正在强化他的"+ strength +"级的"
+											+ n + "...");
 								}
 							}
 						}
@@ -246,7 +254,7 @@ public class GuiEvent implements org.bukkit.event.Listener {
 
 		SlashStrength ss = new SlashStrength(item);
 		int strength = ss.getStrength();
-		List<Player> ps = (List<Player>) p.getServer().getOnlinePlayers();
+		Player[] ps = p.getServer().getOnlinePlayers();
 		if (checkIfOk(item, p)) {
 			int number = strength + 1;
 			ItemStack[] is = p.getInventory().getContents();
@@ -285,9 +293,12 @@ public class GuiEvent implements org.bukkit.event.Listener {
 			int chancer = r.nextInt(100);
 			boolean isSuccess = chance >= chancer;
 			p.sendMessage("§4§l[提示]§e本次强化拔刀,最终成功率:" + chance + "%,本次不幸值:" + chancer);
-			plugin.getLogger().info(p.getName() + "正在强化拔刀,成功率:" + chance + "%,本次不幸值:" + chancer);
+			plugin.getLogger().info(p.getName() + "正在强化拔刀,成功率:" + chance + "%,本次不幸值:" + chancer+",结果:"+(isSuccess?"成功":"失败"));
 			if (isSuccess) {
-				if (strength >= 20) {
+				if (
+						Main.config.getBoolean("Broadcast")
+						&&
+						strength >= Main.config.getInt("StrengthLimit")) {
 					for (Player player : ps) {
 						if (player.isOnline()) {
 							player.sendMessage(Main.config.getString("Message_suc"));
@@ -324,7 +335,13 @@ public class GuiEvent implements org.bukkit.event.Listener {
 				if (p.isOnline())
 					p.openInventory(invresult);
 			} else {
-				if (strength >= 20) {
+				if (
+						Main.config.getBoolean("Broadcast")
+						&&
+						Main.config.getBoolean("FailBuff")
+						&&
+						strength >= Main.config.getInt("StrengthLimit")
+						) {
 					for (Player player : ps) {
 						if (player.isOnline()) {
 							player.sendMessage(Main.config.getString("Message_def"));

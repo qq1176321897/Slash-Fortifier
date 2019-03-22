@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="slashforitier">
+    <output-path>F:/u端/plugins</output-path>
+    <root id="archive" name="slashforitier.jar">
+      <element id="module-output" name="Slash-Fortifier" />
+    </root>
+  </artifact>
+</component>

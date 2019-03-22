@@ -1,15 +1,14 @@
 package windyroad.slashfortifier.main;
 
-import java.io.File;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.libs.jline.internal.InputStreamReader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,12 +34,24 @@ public class Main extends JavaPlugin {
 		if (!file.exists()) {
 			saveDefaultConfig();
 		}
-		reloadConfig();
 		config = getConfig();
+		doReloadConfig(file);
 		getLogger().info("成功加载拔刀强化插件");
 		getLogger().info("作者:WindyRoad");
 
 		super.onEnable();
+	}
+
+	public void doReloadConfig(File file){
+		try {
+			config.load(new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8")));
+		} catch (IOException e) {
+			getLogger().info("读取拔刀剑强化插件配置失败！");
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			getLogger().info("读取拔刀剑强化插件配置失败！");
+			e.printStackTrace();
+		}
 	}
 
 	public void onDisable() {

@@ -1,5 +1,6 @@
 package windyroad.slashfortifier;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,8 @@ import org.bukkit.plugin.Plugin;
 import net.minecraft.server.v1_7_R4.NBTTagCompound;
 import windyroad.slashfortifier.main.Main;
 
+import static javax.sql.rowset.spi.SyncFactory.getLogger;
+
 public class Commands implements CommandExecutor{
 
 	private final Plugin plugin;
@@ -30,12 +33,17 @@ public class Commands implements CommandExecutor{
 				Player p = (Player)sender;
 				if(p.isOp()) {
 					try {
+					if("reload".equals(args[0])){
+						((Main)plugin).doReloadConfig(new File(plugin.getDataFolder(), "config.yml"));
+						p.sendMessage("§4§l[提示]§e成功重载载拔刀强化插件的配置");
+						return true;
+					}
 					if("hand".equals(args[0])) {
 						try {
 						if (args[1].matches("^[0-9]*$")) {
 							List idList = Main.config.getIntegerList("SlashId");
 							ItemStack slash = p.getItemInHand();
-							if (idList.contains(slash.getTypeId())) {
+							if (SlashUtils.isSlash(slash)) {
 								int strength = Integer.parseInt(args[1]);
 								if(strength>500000)strength=500000;
 								if(strength<0)strength=0;
@@ -155,6 +163,7 @@ public class Commands implements CommandExecutor{
 					sender.sendMessage("§e2.获得一张强化券,用法:/slashfortifier voucher 强化的等级(正整数) 几率(1-100之间的一个整数)");
 					sender.sendMessage("§e3.获得一个强化石,用法:/slashfortifier getstone1 增加的强化几率(1-100的正整数)");
 					sender.sendMessage("§e4.获得一个强化保护石,用法:/slashfortifier getstone2");
+					sender.sendMessage("§e4.重载插件配置,用法:/slashfortifier reload");
 					return true;
 					}catch(Exception e) {
 						sender.sendMessage("§4§l[SLASH FORTIFIER]§e命令帮助");
@@ -162,6 +171,7 @@ public class Commands implements CommandExecutor{
 						sender.sendMessage("§e2.获得一张强化券,用法:/slashfortifier voucher 强化的等级(正整数) 几率(1-100之间的一个整数)");
 						sender.sendMessage("§e3.获得一个强化石,用法:/slashfortifier getstone1 增加的强化几率(1-100的正整数)");
 						sender.sendMessage("§e4.获得一个强化保护石,用法:/slashfortifier getstone2");
+						sender.sendMessage("§e4.重载插件配置,用法:/slashfortifier reload");
 						return true;
 					}
 				}else {
@@ -169,7 +179,7 @@ public class Commands implements CommandExecutor{
 					return true;
 				}
 			}else {
-				sender.sendMessage("§4§l[提示]§e只有玩家才能使用这个指令!");
+				sender.sendMessage("§4§l[提示]§e控制台不能使用这个指令!");
 				return true;
 			}
 		};

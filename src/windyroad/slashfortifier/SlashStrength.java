@@ -4,6 +4,9 @@ import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SlashStrength {
 	private int repairCount;	//锻造值
 	private int strength;		//强化值
@@ -13,21 +16,25 @@ public class SlashStrength {
 	 * 该方法用于检测武器的锻造值并设置好对应的强化等级
 	 */
 	public SlashStrength(ItemStack item) {
-		this.item = item;
-		nmsitem = CraftItemStack.asNMSCopy(item);
-		repairCount = nmsitem.getTag().getInt("RepairCounter");
-		if(repairCount<0)repairCount=0;
-		int src = 0;
-		int i = 0;
-		while(true) {
-			src += i++;
-			if(src>=repairCount) {
-				i--;
-				break;
+		try {
+			this.item = item;
+			nmsitem = CraftItemStack.asNMSCopy(item);
+			repairCount = nmsitem.getTag().getInt("RepairCounter");
+			if (repairCount < 0) repairCount = 0;
+			int src = 0;
+			int i = 0;
+			while (true) {
+				src += i++;
+				if (src >= repairCount) {
+					i--;
+					break;
+				}
 			}
+			strength = i;
+			fixRepairCount();    //将锻造值修正
+		}catch (Exception e){
+
 		}
-		strength = i;
-		fixRepairCount();	//将锻造值修正
 	}
 	public void fixRepairCount() {	//根据强化值修正锻造值
 		if(strength == 0) {
@@ -69,7 +76,39 @@ public class SlashStrength {
 		}else {
 			name = "slash";
 		}
-		im.setDisplayName("+"+strength+" "+name.replaceAll("\\+\\d+\\s", ""));
+		List<String> loreList = im.getLore();
+		if(loreList==null){
+			loreList=new ArrayList<String>();
+			loreList.add("");
+		}
+		boolean hasTrueLore = false;
+		String strengthStrLore;
+		if(strength<=3){
+			strengthStrLore = "§7§l= 强化 = " + strength +"级";
+		}else if(strength <= 6){
+			strengthStrLore = "§f§l= 强化 = " + strength +"级";
+		}else if(strength <= 12){
+			strengthStrLore = "§9§l= 强化 = " + strength +"级";
+		}else if(strength <= 16) {
+			strengthStrLore = "§5§l= 强化 = " + strength +"级！";
+		}else if(strength <= 21) {
+			strengthStrLore = "§c§l= 强化 = " + strength +"级！！";
+		}else if(strength <= 25) {
+			strengthStrLore = "§6§l= 强化 = " + strength +"级！！！";
+		}else {
+			strengthStrLore = "§6§l= 强化 = " + strength +"级！！！！！";
+		}
+		for(int i = 0;i<loreList.size();i++){
+			if(loreList.get(i).indexOf("= 强化 =")!=-1){
+				loreList.set(i,strengthStrLore);
+				hasTrueLore = true;
+			}
+		}
+		if(!hasTrueLore){
+			loreList.add(strengthStrLore);
+		}
+		im.setLore(loreList);
+//		im.setDisplayName("+"+strength+" "+name.replaceAll("\\+\\d+\\s", ""));
 		item.setItemMeta(im);
 		return item;
 		
