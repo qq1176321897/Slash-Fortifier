@@ -11,13 +11,17 @@ import org.bukkit.inventory.ItemStack;
 public class GuiCloseEvent implements org.bukkit.event.Listener {
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent e) {
-		Inventory inv = e.getInventory();
-		if (inv.getTitle().matches("拔刀-强化.*") || inv.getTitle().matches(".*强化券.*")) {
-			ItemStack item = inv.getItem(13);
-			inv.clear();
-			if(item == null)return;
-			Player p = (Player) e.getPlayer();
-			p.getInventory().addItem(item);
+		try {
+			Inventory inv = e.getInventory();
+			if (inv.getTitle().matches("拔刀-强化.*") || inv.getTitle().matches(".*强化券.*")) {
+				ItemStack item = inv.getItem(13);
+				inv.clear();
+				if (item == null) return;
+				Player p = (Player) e.getPlayer();
+				p.getInventory().addItem(item);
+				return;
+			}
+		}catch(Exception exp){
 			return;
 		}
 	}
