@@ -19,7 +19,7 @@ Message_noVoucher: "§4§l[提示]§e喂,你的强化券跑哪儿去了?"
 
 
 #此处填写耀魂碎片的id.刀之耀魂用于强化消耗.
-SlashId2: 4462
+SlashId2: 6424
 
 
 
@@ -28,17 +28,17 @@ SlashId2: 4462
 #Broadcast:是否开启全服强化公告,true开启,false关闭
 Broadcast: true
 #StrengthLimit:强化高于多少等级进行强化公告
-StrengthLimit: 21
+StrengthLimit: 11
 #FailBuff:是否开启强化失败后在线玩家自动发出祝福语并获得buff的功能？true开启,false关闭。需要Broadcast开启才有效
 FailBuff: true
 
 
 
 #强化石的ID
-id_QHS: 264
+id_QHS: 7751
 
 #保护石的ID
-id_BHS: 388
+id_BHS: 7752
 
 #这里设置强化的成功率,以及相对应的的失败惩罚.
 #StrengthLevel表示强化等级.
@@ -46,30 +46,27 @@ id_BHS: 388
 #punish表示强化失败后掉的等级数.x(小写)表示等级归0,X(大写)表示武器损坏消失
 ChanceSetting:
   -
-    StrengthLevel: 3  
+    StrengthLevel: 4
     chance: 100
     punish: 0
+    coin: 200
   -
-    StrengthLevel: 7 
-    chance: 90
-    punish: 1
-  -
-    StrengthLevel: 11  
+    StrengthLevel: 8
     chance: 80
+    punish: 2
+    coin: 800
+  -
+    StrengthLevel: 10
+    chance: 50
     punish: 3
+    coin: 2000
   -
     StrengthLevel: 15  
-    chance: 70
-    punish: 5
-  -
-    StrengthLevel: 20  
-    chance: 60
-    punish: 7
-  -
-    StrengthLevel: 25  
-    chance: 50
-    punish: x         
+    chance: 20
+    punish: x
+    coin: 5000
   -
     StrengthLevel: max  
-    chance: 30
+    chance: 10
     punish: X
+    coin: 10000
