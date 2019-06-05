@@ -13,6 +13,9 @@ public class Gui {
 	public Gui(String name) {
 		inv = Bukkit.createInventory(null, InventoryType.CHEST, "拔刀-强化" + name);
 		ItemStack cut = new ItemStack(Material.STAINED_GLASS_PANE, 1);
+		ItemMeta im2 = cut.getItemMeta();
+		im2.setDisplayName("§e[占位符]");
+		cut.setItemMeta(im2);
 		for (int i = 0; i < 27; i++) {
 			inv.setItem(i, cut);
 		}
@@ -36,6 +39,9 @@ public class Gui {
 	public Gui(int level,int chance) {
 		inv = Bukkit.createInventory(null, InventoryType.CHEST, "+"+level+"强化券,成功率 百分之"+chance);
 		ItemStack cut = new ItemStack(Material.STAINED_GLASS_PANE, 1);
+		ItemMeta im2 = cut.getItemMeta();
+		im2.setDisplayName("§e[占位符]");
+		cut.setItemMeta(im2);
 		for (int i = 0; i < 27; i++) {
 			inv.setItem(i, cut);
 		}

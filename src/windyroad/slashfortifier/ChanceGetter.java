@@ -10,14 +10,16 @@ public class ChanceGetter {
 	int punish = 0;
 	boolean ifTo0 = false;
 	boolean ifBreak = false;
+	int coin = 0;
 	public ChanceGetter(int strength) {
-		List<Map> strength_Chance_List = (List<Map>) Main.config.getList("ChanceSetting");	
+		List<Map> strength_Chance_List = (List<Map>) Main.config.getList("ChanceSetting");
 		for(int i = 0;i<strength_Chance_List.size();i++) {
 			Map map =  strength_Chance_List.get(i);
 			String sl = map.get("StrengthLevel").toString();
 			String pls = map.get("punish").toString();
 			if(("max").equals(sl) || strength<=Integer.parseInt(sl)) {
 				chance = (Integer)map.get("chance");
+				coin = (Integer)map.get("coin");
 				if("x".equals(pls)) {
 					ifTo0 = true;
 				}else if("X".equals(pls)) {

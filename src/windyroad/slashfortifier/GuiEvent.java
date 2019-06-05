@@ -1,5 +1,6 @@
 package windyroad.slashfortifier;
 
+import java.math.MathContext;
 import java.util.*;
 
 import org.bukkit.Bukkit;
@@ -19,12 +20,16 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import com.earth2me.essentials.api.Economy;
+import java.math.BigDecimal;
+
+//import net.milkbowl.vault.economy.*;
 
 import windyroad.slashfortifier.main.Main;
 
 public class GuiEvent implements org.bukkit.event.Listener {
 	Plugin plugin;
-
+	//private Economy vault;
 	public GuiEvent(Plugin plugin) {
 		this.plugin = plugin;
 	}
@@ -33,7 +38,6 @@ public class GuiEvent implements org.bukkit.event.Listener {
 	public void onInventoryClick(InventoryClickEvent event) {
 		Inventory inv = event.getInventory();
 		ItemStack item = event.getCurrentItem();
-		List idList = Main.config.getIntegerList("SlashId");
 		if (item == null)
 			return;
 		if (inv instanceof AnvilInventory) {
@@ -129,6 +133,9 @@ public class GuiEvent implements org.bukkit.event.Listener {
 							}
 
 							ItemStack cut = new ItemStack(Material.STAINED_GLASS_PANE, 1);
+							ItemMeta im2 = cut.getItemMeta();
+							im2.setDisplayName("§e[占位符]");
+							cut.setItemMeta(im2);
 							for (int i = 0; i < 27; i++) {
 								newInv.setItem(i, cut);
 							}
@@ -193,12 +200,24 @@ public class GuiEvent implements org.bukkit.event.Listener {
 						p.closeInventory();
 						p.sendMessage(Main.config.getString("Message_NOT_Slash"));
 						return;
+					} else if (!enoughMoney(itemstack, p)){
+						event.setCancelled(true);
+						p.closeInventory();
+						p.sendMessage("§4§l[提示]§e没钱还想白嫖？");
+						return;
 					} else if (checkIfOk(itemstack, p)) {
 						event.setCancelled(true);
 						inv.clear(13);
 						p.closeInventory();
 						SlashStrength ss = new SlashStrength(itemstack);
 						int strength = ss.getStrength();
+						try{
+							Economy.substract(p.getName(), new BigDecimal(getCoin(strength)));
+						}catch(Throwable e)
+						{
+							e.printStackTrace();
+							return;
+						}
 						p.sendMessage("§e正在强化");
 						Player[] ps = p.getServer().getOnlinePlayers();
 						if (
@@ -249,14 +268,22 @@ public class GuiEvent implements org.bukkit.event.Listener {
 			}
 		}
 	}
-
+	private static boolean enoughMoney(ItemStack itemStack, Player p)
+	{
+		try {
+			return Economy.hasEnough(p.getName(), new BigDecimal(getCoin(new SlashStrength(itemStack).getStrength())));
+		}catch(Throwable e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 	private void startFort(ItemStack item, Player p) {
 
 		SlashStrength ss = new SlashStrength(item);
 		int strength = ss.getStrength();
 		Player[] ps = p.getServer().getOnlinePlayers();
 		if (checkIfOk(item, p)) {
-			int number = strength + 1;
+			int number = getMaterial(strength);
 			ItemStack[] is = p.getInventory().getContents();
 			for (int i2 = 0; i2 < is.length; i2++) {
 				if (is[i2] != null) {
@@ -400,8 +427,7 @@ public class GuiEvent implements org.bukkit.event.Listener {
 	}
 
 	private void putOfflineItems(ItemStack item) {
-		
-		
+
 	}
 
 	private boolean checkIfOk(ItemStack item, Player p) { // 判断是否符合强化条件(材料是否齐全)
@@ -428,10 +454,20 @@ public class GuiEvent implements org.bukkit.event.Listener {
 			}
 		}
 
-		boolean bool = number >= (i + 1);
+		boolean bool = number >= getMaterial(i);
 		return bool;
 	}
-
+	private static int getMaterial(int strength)
+	{
+		if (strength < 5) return 20;
+		else if (strength < 9) return 32;
+		else if (strength < 11) return 48;
+		else if (strength < 16) return 64;
+		else return 64 + 10 * (strength - 15);
+	}
+	private static int getCoin(int strength) {
+		return new ChanceGetter(strength).coin;
+	}
 	private void getRequire(ItemStack item, List<String> list, Player p) {
 		SlashStrength ss = new SlashStrength(item);
 		int repair = ss.getRepairCount();
@@ -449,7 +485,8 @@ public class GuiEvent implements org.bukkit.event.Listener {
 		} else {
 			list.add("如果失败:强化等级减少" + cg.punish);
 		}
-		list.add("需要材料:耀魂碎片 " + (strength + 1) + "个");
+		list.add("需要材料:耀魂碎片 " + getMaterial(strength) + "个");
+		list.add("需要金钱：" + getCoin(strength));
 		list.add("请将材料放于背包中,点击确认开始强化");
 		list.add("背包里放一些道具可提高成功率,或失败保护");
 	}
